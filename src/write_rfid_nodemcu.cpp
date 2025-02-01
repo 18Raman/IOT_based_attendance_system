@@ -1,6 +1,8 @@
 #include <SPI.h>
 #include <MFRC522.h>
 
+#define CARD_ID "Sample_Id" // Change this to your card ID
+
 constexpr uint8_t RST_PIN = D3;     // Configurable, see typical pin layout above
 constexpr uint8_t SS_PIN = D4;     // Configurable, see typical pin layout above
 
@@ -12,7 +14,7 @@ MFRC522::MIFARE_Key key;
 int blockNum = 2;  
 /* Create an array of 16 Bytes and fill it with data */
 /* This is the actual data which is going to be written into the card */
-byte blockData [16] = {"Rahul_Verma_180"};
+byte blockData [16] = {CARD_ID};
 
 /* Create another array to read data from Block */
 /* Legthn of buffer should be 2 Bytes more than the size of Block (16 Bytes) */

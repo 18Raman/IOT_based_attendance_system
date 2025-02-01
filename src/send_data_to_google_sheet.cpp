@@ -6,7 +6,12 @@
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
 #include <WiFiClientSecureBearSSL.h>
+#include <LiquidCrystal_I2C.h>
 
+LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display 
+
+#define WIFI_NETWORK  "Sample_Network"  // Change this to your network name
+#define WIFI_PASSWORD "Sample_Network_password"  // Change this to your network password
 
 #define RST_PIN  D3     // Configurable, see typical pin layout above
 #define SS_PIN   D4     // Configurable, see typical pin layout above
@@ -21,7 +26,7 @@ MFRC522::StatusCode status;
 int blockNum = 2;  
 
 /* Create another array to read data from Block */
-/* Legthn of buffer should be 2 Bytes more than the size of Block (16 Bytes) */
+/* Length of buffer should be 2 Bytes more than the size of Block (16 Bytes) */
 byte bufferLen = 18;
 byte readBlockData[18];
 
@@ -30,6 +35,11 @@ const String data1 = "https://script.google.com/macros/s/AKfycby-2q7GzryKbKRW5-0
 
 void setup() 
 {
+  //Initialoze the LCD display
+  lcd.clear();
+  lcd.init();
+  lcd.backlight();
+
   /* Initialize serial communications with the PC */
   Serial.begin(9600);
   // Serial.setDebugOutput(true);
@@ -48,7 +58,7 @@ void setup()
   WiFi.mode(WIFI_STA);
   
   /* Put your WIFI Name and Password here */
-  WiFiMulti.addAP("OnePlus Nord CE 2", "00001111");
+  WiFiMulti.addAP(WIFI_NETWORK, WIFI_PASSWORD);
 
   /* Set BUZZER as OUTPUT */
   pinMode(BUZZER, OUTPUT);
@@ -88,12 +98,12 @@ void loop()
     Serial.write(readBlockData[j]);
   }
   Serial.println();
+
   digitalWrite(BUZZER, HIGH);
   delay(200);
   digitalWrite(BUZZER, LOW);
   delay(200);
 
-  
   // wait for WiFi connection
   if ((WiFiMulti.run() == WL_CONNECTED)) 
   {
@@ -122,6 +132,12 @@ void loop()
       {
         // HTTP header has been send and Server response header has been handled
         Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
+
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("RFID Data:");
+        lcd.setCursor(0,1);
+        lcd.print((char*)readBlockData);
         // file found at server
       }
       else 
@@ -133,7 +149,7 @@ void loop()
     } 
     else 
     {
-      Serial.printf("[HTTPS} Unable to connect\n");
+      Serial.printf("[HTTPS] Unable to connect\n");
     }
   }
 }
